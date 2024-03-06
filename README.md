@@ -4,3 +4,4 @@ The project aims at developing a smart eye called: E - Cakṣu, which can be use
 
 **Note:** This project contains the script which needs to be executed on Raspberry Pi Zero W which is connected with camera module and to circuit like shown below:
 
+![Circuit design](https://github.com/Nihal4777/E-chaksu/assets/65150640/92936784-df69-4a8d-a588-673d46c64f62)
