@@ -5,7 +5,9 @@ from signal import pause
 from google.oauth2 import service_account
 import vertexai
 from vertexai.vision_models import ImageTextModel, Image
-
+from pydub import AudioSegment
+from pydub.playback import play 
+from google.cloud import texttospeech
 SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
 SERVICE_ACCOUNT_FILE = 'keys.json'
 PROJECT_ID = 'groovy-height-411217' # @param {type:"string"}
@@ -15,7 +17,9 @@ credentials = service_account.Credentials.from_service_account_file(
         SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 vertexai.init(project=PROJECT_ID, location=LOCATION,credentials=credentials,)
 model = ImageTextModel.from_pretrained("imagetext@001")
-
+audio_config = texttospeech.AudioConfig(
+	    audio_encoding=texttospeech.AudioEncoding.LINEAR16,
+	    speaking_rate=1)
 print("Initialized")
 
 button2 = Button(2)
@@ -38,7 +42,7 @@ def getDesc():
 	)
 	print(captions)
 	"""Synthesizes speech from the input string of text."""
-	from google.cloud import texttospeech
+
 
 	client = texttospeech.TextToSpeechClient(credentials=credentials)
 
@@ -65,13 +69,39 @@ def getDesc():
 	    out.write(response.audio_content)
 	    print('Audio content written to file "output.mp3"')
 
-	from pydub import AudioSegment
-	from pydub.playback import play 
 	song = AudioSegment.from_wav("output.mp3") 
 	play(song)
 
 def getQnA():
 	print("Button 27 clicked");
+	source_image = Image.load_from_file(location='./pic.jpg');
+	answers = model.ask_question(
+        image=source_image,
+        question="Is the sky black?",
+        # Optional parameters
+        number_of_results=1,
+    )
+	print(answers)
+	client = texttospeech.TextToSpeechClient(credentials=credentials)
+
+	input_text = texttospeech.SynthesisInput(text=answers[0])
+
+	# Note: the voice can also be specified by name.
+	# Names of voices can be retrieved with client.list_voices().
+	voice = texttospeech.VoiceSelectionParams(
+	    language_code="hi-in",
+	    name="hi-IN-Neural2-A",
+	)
+
+	response = client.synthesize_speech(
+	    request={"input": input_text, "voice": voice, "audio_config": audio_config}
+	)
+
+	with open("output.mp3", "wb") as out:
+		out.write(response.audio_content)
+		print('Audio content written to file "output.mp3"')
+	song = AudioSegment.from_wav("output.mp3") 
+		play(song)
 
 button2.when_pressed=getDesc
 button27.when_pressed=getQnA
