@@ -115,10 +115,28 @@ def getQnA():
 	wf.writeframes(b"".join(frames))	
 	# close the file
 	wf.close();
+
+	#Using Speech to text library to extract question
+	# Instantiates a client
+	client = speech.SpeechClient(credentials=credentials)
+	
+	 # The name of the audio file to transcribe
+	speech_file = "./recorded.wav"
+	with open(speech_file, "rb") as audio_file:
+	        content = audio_file.read()
+	
+	audio = speech.RecognitionAudio(content=content)
+	
+	config = speech.RecognitionConfig(encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+	language_code="hi")
+	
+	    # Detects speech in the audio file
+	response = client.recognize(config=config, audio=audio)
+
 	
 	answers = model.ask_question(
         image=source_image,
-        question="Is the sky black?",
+        question=response.results[0].alternatives[0].transcript,
         # Optional parameters
         number_of_results=1,
     )
