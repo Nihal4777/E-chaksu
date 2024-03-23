@@ -101,7 +101,7 @@ def getQnA():
 		out.write(response.audio_content)
 		print('Audio content written to file "output.mp3"')
 	song = AudioSegment.from_wav("output.mp3") 
-		play(song)
+	play(song)
 
 button2.when_pressed=getDesc
 button27.when_pressed=getQnA
